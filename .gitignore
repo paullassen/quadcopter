@@ -2,3 +2,4 @@
 **/bin
 **/bb_bin
 *.o
+mount.sh

@@ -1,4 +1,4 @@
 .clang_complete 
 **/bin
 **/bb_bin
-
+*.o

@@ -1,4 +1,4 @@
 LOCAL = 1
 TARGET = txjs
-include ../Makefile
+include ../makefiles/c/Makefile
 

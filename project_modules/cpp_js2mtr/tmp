@@ -1,0 +1,3 @@
+TARGET = cpp_js2mtr
+include ../makefiles/cpp/Makefile
+

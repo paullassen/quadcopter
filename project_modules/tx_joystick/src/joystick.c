@@ -22,7 +22,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#define SERVER "192.168.86.53"
+#define SERVER "192.168.1.176"
 //#define SERVER "192.168.1.149"
 #define BUFLEN 14 // Max length of buffer
 #define PORT 8888 // The port on which to send data

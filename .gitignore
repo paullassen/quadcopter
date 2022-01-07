@@ -2,5 +2,6 @@
 **/bin
 **/bb_bin
 *.o
+*.d
 **/librobotcontrol
 mount.sh

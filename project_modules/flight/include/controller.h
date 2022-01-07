@@ -1,0 +1,5 @@
+#ifndef QUADCOPTER_CONTROL_H_
+#define QUADCOPTER_CONTROL_H_
+
+
+#endif

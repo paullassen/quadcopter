@@ -18,8 +18,7 @@ typedef struct {
   unsigned int *pru;
   unsigned int *pru0DRAM_32int_ptr; // Points to the start of local DRAM
   unsigned int *pru1DRAM_32int_ptr; // Points to the start of local DRAM
-  unsigned int
-      *prusharedMem_32int_ptr; // Points to the start of the shared memory
+  unsigned int *prusharedMem_32int_ptr; // Points to the start of the shared memory
 
 } motor_interface_t;
 

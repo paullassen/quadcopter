@@ -1,4 +1,4 @@
-#include "joystick_server.h"
+#include "joystick_server.hpp"
 #include <arpa/inet.h>
 #include <pthread.h>
 #include <stdio.h>  //printf
@@ -9,130 +9,65 @@
 #include <sys/socket.h>
 
 
-void init_joystick(joystick_t *js){
-  js->rwlock = malloc(sizeof(pthread_rwlock_t));
-  pthread_rwlock_init(js->rwlock, NULL);
-  js->a_button = 0;
-  js->b_button = 0;
-  js->x_button = 0;
-  js->y_button = 0;
+Joystick::Joystick(){
+  pthread_rwlock_init(&rwlock, NULL);
 
-  js->l_button = 0;
-  js->r_button = 0;
-
-  js->start_button = 0;
-  js->select_button = 0;
-
-  js->l_stick_button = 0;
-  js->r_stick_button = 0;
-
-  js->l_stick_lr = 0;
-  js->l_stick_ud = 0;
-  js->l_bumper = -32768;
-
-  js->r_stick_lr = 0;
-  js->r_stick_ud = 0;
-  js->r_bumper = -32768;
-}
-
-void kill_joystick(joystick_t *js){
-  pthread_rwlock_destroy(js->rwlock);
-  free(js->rwlock);
-}
-
-void read_joystick(joystick_t *js, int *buf){
-  pthread_rwlock_rdlock(js->rwlock);
-  buf[0] = js->a_button;
-  buf[1] = js->b_button;
-  buf[2] = js->x_button;
-  buf[3] = js->y_button;
-  buf[4] = js->l_button;
-  buf[5] = js->r_button;
-  buf[6] = js->start_button;
-  buf[7] = js->select_button;
-  buf[8] = js->l_stick_button;
-  buf[9] = js->r_stick_button;
-  
-  buf[10] = js->l_stick_lr;
-  buf[11] = js->l_stick_ud;
-  buf[12] = js->l_bumper;
-
-  buf[13] = js->r_stick_lr;
-  buf[14] = js->r_stick_ud;
-  buf[15] = js->r_bumper;
-  pthread_rwlock_unlock(js->rwlock);
-}
-
-void norm_joystick(int *buf, double *norm_buf){
   for( int i = 0; i < JS_LEN; ++i ){
-    if( i==12 || i ==15 ){ // The Triggers/Bumpers
-      norm_buf[i] = (double) buf[i]/65536 +0.5;
-    } else if( i==11 || i ==14 ){ // The Up/Down axis on the sticks
-      norm_buf[i] = (double) -buf[i]/ (65536/2);
-    } else if( i==10 || i ==13 ){ // The Left/Right axis on the sticks
-      norm_buf[i] = (double) buf[i]/ (65536/2);
+    if( i == JS_L_BUMPER || i == JS_R_BUMPER ){
+      channel[i] = -32768;
     } else {
-      norm_buf[i] = (double) buf[i];
+      channel[i] = 0;
     }
   }
 }
 
-void write_joystick(joystick_t *js, int *buf) {
-  pthread_rwlock_wrlock(js->rwlock);
-  js->a_button = buf[0];
-  js->b_button = buf[1];
-  js->x_button = buf[2];
-  js->y_button = buf[3];
-
-  js->l_button = buf[4];
-  js->r_button = buf[5];
-
-  js->start_button = buf[6];
-  js->select_button = buf[7];
-
-  js->l_stick_button = buf[9];
-  js->r_stick_button = buf[10];
-
-  js->l_stick_lr = buf[11];
-  js->l_stick_ud = buf[12];
-  js->l_bumper = buf[13];
-
-  js->r_stick_lr = buf[14];
-  js->r_stick_ud = buf[15];
-  js->r_bumper = buf[16];
-  pthread_rwlock_unlock(js->rwlock);
+Joystick::~Joystick(){
+  pthread_rwlock_destroy(&rwlock);
 }
 
-void print_joystick(joystick_t *js) {
-  pthread_rwlock_rdlock(js->rwlock);
-  printf("%d\t", js->a_button);
-  printf("%d\t", js->b_button);
-  printf("%d\t", js->x_button);
-  printf("%d\t", js->y_button);
-  printf("%d\t", js->l_button);
-  printf("%d\t", js->r_button);
-  printf("%d\t", js->start_button);
-  printf("%d\t", js->select_button);
-  printf("%d\t", js->l_stick_button);
-  printf("%d\t", js->r_stick_button);
-  printf("%d\t", js->l_stick_lr);
-  printf("%d\t", js->l_stick_ud);
-  printf("%d\t", js->r_stick_lr);
-  printf("%d\t", js->r_stick_ud);
-  printf("%d\t", js->l_bumper);
-  printf("%d\t", js->r_bumper);
-  printf("\r");
-  pthread_rwlock_unlock(js->rwlock);
+void Joystick::write(int * buf){
+  pthread_rwlock_wrlock(&rwlock);
+  // Buttons (exc. stick)
+  for(int i = 0; i < 8; ++i){
+    channel[i]  = buf[i];
+    norm_channel[i] = (double) buf[i];
+  }
+  
+  // Analog Inputs (inc. Stick Buttons)
+  for(int i = 8; i < JS_LEN; ++i){
+    channel[i] = buf[i+1];
+
+    if( i==JS_L_BUMPER || i == JS_R_BUMPER ){ // The Triggers/Bumpers
+      norm_channel[i] = (double) buf[i+1]/65536 +0.5;
+    } else if( i==JS_L_STICK_UD || i ==JS_R_STICK_UD ){ // The Up/Down axis on the sticks
+      norm_channel[i] = (double) -buf[i+1]/ (65536/2);
+    } else if( i==JS_L_STICK_LR || i ==JS_R_STICK_LR ){ // The Left/Right axis on the sticks
+      norm_channel[i] = (double) buf[i+1]/ (65536/2);
+    } else {
+      norm_channel[i] = (double) buf[i+1];
+    }
+  }
+  pthread_rwlock_unlock(&rwlock);
 }
 
-void print_joystick_norm(double * norm_buf){
+int Joystick::get_channel(js_channel_t ch){
+  return channel[ch];
+}
+
+double Joystick::get_norm_channel(js_channel_t ch){
+  return norm_channel[ch];
+}
+
+void Joystick::print(){
+  pthread_rwlock_rdlock(&rwlock);
   for(int i = 0; i < JS_LEN; ++i){
-    printf("%0.2f  ", norm_buf[i]);
+    printf("%0.2f  ", norm_channel[i]);
   }
   printf("\r");
+  pthread_rwlock_unlock(&rwlock);  
 }
 
-void print_header() {
+void Joystick::print_header() {
   printf("\n");
   printf("%s  ", "a   ");
   printf("%s  ", "b   ");
@@ -153,9 +88,9 @@ void print_header() {
   printf("\n");
 }
 
-void *js_thread(void *thread_args) {
+void *joystick_server_thread(void *thread_args) {
   void **args = (void **)thread_args;
-  joystick_t *js = (joystick_t *)args[0];
+  Joystick *js = (Joystick  *)args[0];
   int *running = (int *)args[1];
   printf("Joystick Thread: Line 141\n");
   struct sockaddr_in si_me, si_other;
@@ -163,8 +98,9 @@ void *js_thread(void *thread_args) {
   int s;
   int slen = sizeof(si_other); 
   int recv_len;
-  int buf[BUFLEN] = {0};
-  read_joystick(js, buf);
+  int buf[JS_RAW_LEN] = {0};
+  buf[JS_RAW_L_BUMPER] = -32768;
+  buf[JS_RAW_R_BUMPER] = -32768;
 
   // create a UDP socket
   printf("Joystick Thread: Line 151\n");
@@ -185,17 +121,17 @@ void *js_thread(void *thread_args) {
     pthread_exit(NULL);
   }
   // keep listening for data
-  print_header();
+  js->print_header();
   while (*running) {
     // printf("Waiting for data...");
     fflush(stdout);
 
     // try to receive some data, this is a blocking call
-    if ((recv_len = recvfrom(s, buf, BUFLEN * 4, 0,
-                             (struct sockaddr *)&si_other, &slen)) == -1) {
+    if ((recv_len = recvfrom(s, buf, JS_RAW_LEN * 4, 0,
+                             (struct sockaddr *)&si_other, (socklen_t *)&slen)) == -1) {
       pthread_exit(NULL);
     }
-    write_joystick(js, buf);
+    js->write(buf);
   }
 
   close(s);

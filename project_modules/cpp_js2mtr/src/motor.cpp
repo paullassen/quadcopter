@@ -1,5 +1,5 @@
 
-#include "motor.h"
+#include "motor.hpp"
 #include <fcntl.h>
 #include <stdio.h>
 #include <sys/mman.h>
@@ -13,7 +13,7 @@ int init_motor_interface(motor_interface_t *m) {
     printf("ERROR: Failed to open /dev/mem.\n\n");
     return -1;
   }
-  m->pru = mmap(0, PRU_LEN, PROT_READ | PROT_WRITE, MAP_SHARED, fd, PRU_ADDR);
+  m->pru = (unsigned int *) mmap(0, PRU_LEN, PROT_READ | PROT_WRITE, MAP_SHARED, fd, PRU_ADDR);
   if (m->pru == MAP_FAILED) {
     printf("ERROR: Failed to map memory.\n\n");
     return -1;

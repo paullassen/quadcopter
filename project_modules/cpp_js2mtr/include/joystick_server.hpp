@@ -3,61 +3,66 @@
 
 #include <pthread.h>
 
-#define BUFLEN 17 // Max length of buffer
+#define JS_RAW_LEN 17 // Max length of buffer
 #define PORT 8888 // The port on which to listen for incoming data
-#define JS_LEN BUFLEN-1
+#define JS_LEN JS_RAW_LEN-1
 
-#define A_BUTTON        0
-#define B_BUTTON        1
-#define X_BUTTON        2
-#define Y_BUTTON        3
-#define L_BUTTON        4
-#define R_BUTTON        5
-#define START_BUTTON    6
-#define SELECT_BUTTON   7
-#define L_STICK_BUTTON  8
-#define R_STICK_BUTTON  9
-#define L_STICK_LR      10
-#define L_STICK_UD      11
-#define L_BUMPER        12
-#define R_STICK_LR      13
-#define R_STICK_UD      14
-#define R_BUMPER        15
+typedef enum {
+  JS_A_BUTTON       =  0, 
+  JS_B_BUTTON       =  1,
+  JS_X_BUTTON       =  2, 
+  JS_Y_BUTTON       =  3, 
+  JS_L_BUTTON       =  4, 
+  JS_R_BUTTON       =  5, 
+  JS_START_BUTTON   =  6, 
+  JS_SELECT_BUTTON  =  7, 
+  JS_L_STICK_BUTTON =  8, 
+  JS_R_STICK_BUTTON =  9, 
+  JS_L_STICK_LR     =  10,
+  JS_L_STICK_UD     =  11,
+  JS_L_BUMPER       =  12,
+  JS_R_STICK_LR     =  13,
+  JS_R_STICK_UD     =  14,
+  JS_R_BUMPER       =  15
+} js_channel_t;
 
+typedef enum {
+  JS_RAW_A_BUTTON       =  0,
+  JS_RAW_B_BUTTON       =  1,
+  JS_RAW_X_BUTTON       =  2,
+  JS_RAW_Y_BUTTON       =  3,
+  JS_RAW_L_BUTTON       =  4,
+  JS_RAW_R_BUTTON       =  5,
+  JS_RAW_START_BUTTON   =  6,
+  JS_RAW_SELECT_BUTTON  =  7,
+  JS_RAW_L_STICK_BUTTON =  9,
+  JS_RAW_R_STICK_BUTTON =  10,
+  JS_RAW_L_STICK_LR     =  11,
+  JS_RAW_L_STICK_UD     =  12,
+  JS_RAW_L_BUMPER       =  13,
+  JS_RAW_R_STICK_LR     =  14,
+  JS_RAW_R_STICK_UD     =  15,
+  JS_RAW_R_BUMPER       =  16
+} js_raw_channel_t;
 
-typedef struct {
-  int a_button;
-  int b_button;
-  int x_button;
-  int y_button;
+class Joystick {
+  private:
+    pthread_rwlock_t rwlock;
+    int channel[JS_LEN];
+    double norm_channel[JS_LEN];
 
-  int l_button;
-  int r_button;
+  public:
+    Joystick();
+    ~Joystick();
+    void write(int * buf);
+    int get_channel(js_channel_t);
+    double get_norm_channel(js_channel_t);
 
-  int start_button;
-  int select_button;
+    void print();
+    void print_norm();
+    void print_header();
+};
 
-  int l_stick_button;
-  int r_stick_button;
-
-  int l_stick_ud;
-  int l_stick_lr;
-  int r_stick_ud;
-  int r_stick_lr;
-
-  int l_bumper;
-  int r_bumper;
-  
-  pthread_rwlock_t * rwlock;
-} joystick_t;
-
-void init_joystick(joystick_t *js);
-void read_joystick(joystick_t *js, int *buf);
-void write_joystick(joystick_t *js, int *buf);
-void norm_joystick(int * buf, double * norm_buf);
-void print_joystick(joystick_t *js);
-void print_joystick_norm(double * norm_buf);
-void print_header();
-void *js_thread(void *thread_args);
+void *joystick_server_thread(void *thread_args);
 
 #endif

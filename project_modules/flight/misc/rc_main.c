@@ -62,6 +62,11 @@ static void __main_loop(void)
   global_vars_t * gv = &glob_var;
   gv->counter = gv->counter%MPU_PER_BMP;
 
+  drone_state_set_target(yaw_state, y_targ);
+  drone_state_set_target(pitch_state, p_targ);
+  drone_state_set_target(roll_state, r_targ);
+  drone_state_set_target(alt_state, a_targ);
+
   if( gv->counter == 0 )
   {
     rc_bmp_read(&gv->bmp_data);
@@ -108,7 +113,7 @@ static void __signal_handler(__attribute__ ((unused)) int dummy)
 int main()
 {
   global_vars_t * gv = &glob_var;
-  pthread_t joystick_thread;
+
 	//MPU config
 	rc_mpu_config_t conf = rc_mpu_default_config();
 	conf.i2c_bus = I2C_BUS;
@@ -149,10 +154,12 @@ int main()
 	rc_mpu_power_off();
 	rc_bmp_power_off();
 	rc_remove_pid_file();	
+
   drone_state_destroy(alt_state);
   drone_state_destroy(yaw_state);
   drone_state_destroy(pitch_state);
   drone_state_destroy(roll_state);
+
 	printf("\n\n\n\n");
 	fflush(stdout);
 	return 0;

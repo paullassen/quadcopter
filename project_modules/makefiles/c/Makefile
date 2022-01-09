@@ -25,6 +25,7 @@ EXE := $(BIN_DIR)/$(TARGET)
 .PHONY: all clean
 
 all: $(EXE)
+	@$(RM) *.d 2> /dev/null
 
 $(EXE): $(OBJ)
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@

@@ -1,0 +1,82 @@
+[
+    {
+        "arguments": [
+            "arm-linux-gnueabihf-gcc",
+            "-c",
+            "-I./include",
+            "-I../../librobotcontrol/library/include",
+            "-g",
+            "-Wall",
+            "-Wno-address-of-packed-member",
+            "-o",
+            "obj/joystick_server.o",
+            "src/joystick_server.c"
+        ],
+        "directory": "/home/pala/quadcopter/project_modules/flight",
+        "file": "src/joystick_server.c"
+    },
+    {
+        "arguments": [
+            "arm-linux-gnueabihf-gcc",
+            "-c",
+            "-I./include",
+            "-I../../librobotcontrol/library/include",
+            "-g",
+            "-Wall",
+            "-Wno-address-of-packed-member",
+            "-o",
+            "obj/attitude_controller.o",
+            "src/attitude_controller.c"
+        ],
+        "directory": "/home/pala/quadcopter/project_modules/flight",
+        "file": "src/attitude_controller.c"
+    },
+    {
+        "arguments": [
+            "arm-linux-gnueabihf-gcc",
+            "-c",
+            "-I./include",
+            "-I../../librobotcontrol/library/include",
+            "-g",
+            "-Wall",
+            "-Wno-address-of-packed-member",
+            "-o",
+            "obj/state.o",
+            "src/state.c"
+        ],
+        "directory": "/home/pala/quadcopter/project_modules/flight",
+        "file": "src/state.c"
+    },
+    {
+        "arguments": [
+            "arm-linux-gnueabihf-gcc",
+            "-c",
+            "-I./include",
+            "-I../../librobotcontrol/library/include",
+            "-g",
+            "-Wall",
+            "-Wno-address-of-packed-member",
+            "-o",
+            "obj/main.o",
+            "src/main.c"
+        ],
+        "directory": "/home/pala/quadcopter/project_modules/flight",
+        "file": "src/main.c"
+    },
+    {
+        "arguments": [
+            "arm-linux-gnueabihf-gcc",
+            "-c",
+            "-I./include",
+            "-I../../librobotcontrol/library/include",
+            "-g",
+            "-Wall",
+            "-Wno-address-of-packed-member",
+            "-o",
+            "obj/motor.o",
+            "src/motor.c"
+        ],
+        "directory": "/home/pala/quadcopter/project_modules/flight",
+        "file": "src/motor.c"
+    }
+]
